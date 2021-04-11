@@ -115,4 +115,7 @@ while True:
 
 
 
+sample_ix = sample(hprev, inputs[0], 20000)
+txt = ''.join(ix_to_char[ix] for ix in sample_ix)
+print ('----\n %s \n----' % (txt, ))
 print('done')
