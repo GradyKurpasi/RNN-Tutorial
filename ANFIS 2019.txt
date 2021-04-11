@@ -1,0 +1,289 @@
+ANFIS as an Example of a Neuro-Fuzzy Approach
+
+      The Jang, Sun, and Mizutani book, Neuro-Fuzzy and Soft Computing, is probably the best source for details on ANFIS and related concepts.  The following notes are a combination of a summary of the key points in their discussion and my own perspective on how to understand it.  
+
+ 	Since this is a rather complex topic, it has always made sense to me to try to absorb the concepts by a step-by-step approach, building one point on top of another.
+
+Point #1: Certainly, it is natural to develop systems using fuzzy logic based on (heuristic) human knowledge, as we’ve considered to this point.  But for some applications it may be practical to develop a fuzzy inference system based entirely or partly on data.  
+
+Point #2: There are many possible ways to develop fuzzy systems designs based on data.  Some of these are based on the machine-learning capabilities of neural nets.  That is the main point of what we consider here.
+
+Point #3: As we discussed briefly earlier, some (relatively simple) approaches to this, developed first by Matsushita corporate laboratories for consumer appliances, are known as “neuro & fuzzy”.  In these, part of the design is a fuzzy inference system based on human heuristic knowledge and a parallel part is an artificial neural network based on data.  
+	In some neuro & fuzzy approaches, the two parts are developed for different aspects of the application.  In other neuro & fuzzy approaches, the two parts are developed for the same aspect of the application and their results are combined based on some (usually simple) weighting scheme.  
+
+	
+
+	
+For either of these two neuro & fuzzy approaches, you simply put together what you already know about neural nets (such as BPN’s) and what you know about fuzzy inference systems (such as Mamdani-style or fuzzy singleton-style) in a fairly straightforward way.  So you don’t need to absorb many new concepts to be capable of developing a neuro & fuzzy application.  What you really need is to be a clever designer so you can apply your design skills to thinking through where it makes sense to combine ANN’s and FIS’s in these ways.
+
+Point #4: Other (fairly complex) approaches that combine neural machine learning with fuzzy systems design are called “neuro-fuzzy” approaches, and these too were developed first largely at Matsushita laboratories for consumer appliances.  In a neuro-fuzzy approach we use the ANN learning to design the fuzzy model itself.  In other words, the neural part and the fuzzy part are no longer two separate components of the design, but rather are two different aspects of the same component.     
+	
+
+      The main advantage often claimed by advocates of the neuro-fuzzy approach is that it allows us to develop a model based mainly on data, but a model that can then be understood in the context of fuzzy inference, and presumably is therefore easier for humans to understand than would typically be the case for a BPN or some other strictly neural approach of that type.  Other advantages claimed are that a neuro-fuzzy approach might both learn much faster and be a much better system approximator than something like a BPN/MLP might be.
+      Note 4a: ANFIS (usually said to be an acronym for “adaptive neuro-fuzzy inference system” though there are other interpretations as well) is one specific neuro-fuzzy approach.  It is not the only one, but it is probably the most widely known.
+      Note 4b: ANFIS (along with some of the other neuro-fuzzy approaches) is based on a fuzzy inference system architecture that is different from both the Mamdani-style and the fuzzy singleton-style.  In fact, it is an architecture that might seem a bit odd at first glance.  This will be the topic we’ll take up as point #5.
+      Note 4c: The neural network architecture used in ANFIS is considerably more complex than BPN’s and RBFN’s, and will probably also be something new for you to learn.  At first, it might seem rather intimidating in the sense that (depending how we view it) it can be thought of as having 6 or 7 layers, each layer somewhat different from the previous one.  However, it is not really hard to understand once you get the hang of it.  
+
+Point #5: The FIS architecture used in ANFIS has been known by a wide variety of names in the literature.  It has variously been called the “Takagi-type”, the “Sugeno-type”, the “Takagi-Sugeno-type”, and the “TSK-type” (for Takagi-Sugeno-Kang) FIS.  It can also be called a “1st order Sugeno model”.  To avoid being too confusing here, let’s agree to call it mainly by the name TSK-style FIS, but we will also make reference to the term 1st order Sugeno model, and explain what is meant by that.  
+	Since we started out emphasizing the Mamdani-style FIS, let’s explain the TSK-style FIS here by comparing and contrasting it with that.  As a basis of comparison, let’s start with a two-input (call them x1 and x2) one-output (y) system model.  Also in the comparison example we’ll tend to use three terms (S, M, and L as abbreviations for small, medium, and large) for the various variables.  
+	In a Mamdani-style FIS design, the rules might be represented as being of the following nature.
+
+	Rule #1: IF (x1 is S AND x2 is S) OR (x1 is S AND x2 is M) OR
+			(x1 is M AND x2 is S) THEN y is S.
+	Rule #2: IF (x1 is M AND x2 is M) OR (x1 is M AND x2 is L) 
+      THEN y is M.
+      etc.
+
+For a Mamdani-style FIS in this context we’d also need (among other things) to define three fuzzy relations:  Rx1, Rx2, and Ry.
+
+	On the other hand, in a TSK-style FIS, the rules would look like the following:
+
+	Rule #1:  IF x1 is S1 AND x2 is S2   THEN y = c10 + c11x1 + c12x2.
+	Rule #2:  IF x1 is S1 AND x2 is M2   THEN y = c20 + c21x1 + c22x2.
+	Rule #3:  IF x1 is S1 AND x2 is L2    THEN y = c30 + c31x1 + c32x2.
+	Rule #4:  IF x1 is M1 AND x2 is S2   THEN y = c40 + c41x1 + c42x2.
+	Rule #5:  IF x1 is M1 AND x2 is M2   THEN y = c50 + c51x1 + c52x2.
+	Rule #6:  IF x1 is M1 AND x2 is L2    THEN y = c60 + c61x1 + c62x2.
+	Rule #7:  IF x1 is L1 AND x2 is S2    THEN y = c70 + c71x1 + c72x2.
+	Rule #8:  IF x1 is L1 AND x2 is M2    THEN y = c80 + c81x1 + c82x2.
+	Rule #9:  IF x1 is L1 AND x2 is L2     THEN y = c90 + c91x1 + c92x2.
+
+If you feel at first that these are rather odd rules, don’t feel bad.  That’s a common first reaction.  The antecedents (the parts that come after the IF) seem to be pretty much what we expect, but the consequents (the parts that come after the THEN) seem unusual.  Even in the antecedents, there is the use of a convention that may be new to you.  It has become customary in representing TSK-style rules to put subscripts on the linguistic terms (S, M, and L, etc.) to make clear that we mean that term within the context of one specific variable.  For example, “M2” can be interpreted to mean “medium in the context of the variable x2” in the sense that medium for x2 probably means something different from medium for x1.  For the TSK-style FIS in this context, we also need to specify two fuzzy relations and a matrix of coefficients.  That is, we need to specify Rx1 and Rx2, but we don’t need any Ry.  What we do need to specify as well though is a matrix full of c coefficients (in this case a 9x3 matrix).  
+
+
+	To summarize, for a two-input one-output application, for a Mamdani-style FIS, the main things we have to identify are:
+      > The terms to use in the rules (i.e. the rule table)
+      > The fuzzy relations to use for the inputs, x1 and x2
+      > The fuzzy relation to use for the output y. 
+Whereas for the TSK-style FIS, the main things to identify are:
+      > The fuzzy relations to use for the inputs, x1 and x2.
+> The coefficient table.
+A common assumption is that the TSK-style is generally more appropriate in the case of data-driven applications while the Mamdani-style is more appropriate in knowledge-driven applications.  Rather than discussing in detail how the calculations work for a TSK-style right now, we’ll present this later specifically as ANFIS performs the calculations.
+
+Point #6: Over the history of practical applications of fuzzy logic, there sometimes has been a general preference for using nonlinear membership functions and at other times for piecewise linear ones.  Some people find piecewise linear membership functions (mainly TFN’s or TrFN’s) more intuitive and more reasonable to use in the case of developing a fuzzy inference system based on human knowledge.  This is why we started out emphasizing these in this course.  However, nonlinear membership functions also have some strong points, and in the end, it is best to be comfortable using either type.  The JSM (Jang, Sun, and Mizutani) book and several other sources, place the most emphasis on these, introducing both what they call the Gaussian and the generalized bell functions in Chapter 2.  They also make the assumption that ANFIS will most often be based on using specifically the generalized bell.  
+	Actually, the presentation in Chapter 2 of JSM is quite complete and quite easy to follow, so here we’ll just review a few of their main points.  The only change I will make is in the variable names for the parameters.  Since we are using the letters at the start of the Latin alphabet for so many other things related to ANFIS, I think it leads to confusion to use these also for parameter names.  We’ll therefore substitute appropriate Greek letters here.  The Gaussian membership function is the shape we typically call “the bell curve”, and although it is used in many other aspects of mathematics as well, it is most familiar to most people as it relates to the normal probability distribution.  In the context of a membership function, it can be expressed as
+
+				,
+
+where ? and ? are some specified parameters.  Specifically ? indicates the center of the membership function (like the mean of a normal distribution) and the second parameter, ?, determines the width of the bell (similar to the standard deviation in the normal distribution).  
+	However, we won’t go further here with our discussion of the Gaussian membership function, since here, as with JSM, we’ll present ANFIS as typically being based on the generalized bell membership function.  As a very intuitive way to think about this, consider it a bell curve that is allowed to have a flat top.  
+The membership function can be expressed as
+
+			.
+
+Obviously, here we must specify three parameters, ?, ?, and ?, in order to identify a specific membership function of this type.  It is still fairly easy to interpret these parameters in an intuitive way.  The center of the membership function comes at ?.  The parameter ? more or less determines the width, and ? can be thought mainly to determine the “squareness” of the function.  (Actually there is an interaction between ? and ?, so sometimes we may want to adjust these two parameters in a coordinated way.)
+
+
+	 
+	One point that is perhaps not always mentioned enough is that the generalized bell function does not actually go to zero at the extreme values.  It only asymptotically approaches zero.  This point has some significance in the sense that it is one of the causes for membership functions of this type in a fuzzy relation not always overlapping in such a way that at any particular value of x they will always sum to one.  (You may have become accustomed to expecting that in the way we often set up our fuzzy relations when using piecewise linear membership functions.)  Since, as we will see in ANFIS, we will end up using a normalization process anyway, this doesn’t really matter, but this is one of the reasons that the normalization process will be important.  
+	Another point that will eventually be important is that we should develop some intuitive interpretation of the parameters.  This is because the typical way of applying ANFIS is to start from some initial approximation of the membership functions based on human intuition about the system in question, rather than generating them randomly.  Only then do we use the data to refine the membership functions.  (In this sense, one can argue that ANFIS is not a purely data driven approach, but then perhaps there really isn’t any such thing as an absolutely purely data-driven approach anyway.)  Thus, there is a reason that JSM talk about the parameters in quite a bit of detail in Chapter 2.  Remember as we noted above, the easy way to remember it is that ? is the center; ? is mainly responsible for determining the width of the bell; and ? is mainly what determines the “squareness” of it.  Figure 2.8 at the top of p. 27 in JSM is useful for understanding this in a little more detail (keeping in mind that they use a, b, and c in place of our ????? and??).  Also, consider the following plot that is an adaptation of Figure 2.9 in JSM.
+
+
+      As mentioned above, it is common practice in ANFIS to start out with membership functions that are intuitively reasonable, and then let the training algorithm adjust or “tune” these based on the data.  As for coming up with these initial membership functions, the information above will give you a good idea of where to start.  Suppose, for example, your first input variable numerically ranged from 100 to 200, and you wanted to represent this as S1, M1, and L1 (meaning small, medium, and large with respect to variable x1) what might you start with for your ?, ?, and ?? parameters for S1, M1, and L1 (total of 9 parameters)?
+      Eventually though, if we are going to use the usual training algorithm for ANFIS (to tune these membership functions), we’ll also need to calculate partial derivatives with respect to the generalized bell function.  In JSM they thoughtfully tell us what these are on p. 34.  For y = ?genbell(x; ???????),
+      	
+
+These will be useful to know when you really get to the point of understanding how training works in ANFIS.
+
+Point #7: We often use minimum for fuzzy conjunction (“AND”) and maximum for fuzzy disjunction (“OR”), but remember we said that these are only known as the standard fuzzy logic operators.  They are not the only ones by any means.  In fact, if you study the subject in more detail, you will discover that there are actually infinite ways we could define these.  This is because an axiomatic treatment of fuzzy logic still leaves infinite possibilities.  
+	Consider a function of the format f : [0, 1] x [0, 1] --> [0, 1].  This means we are talking about a bivariate function that takes two real numbers in the range of 0 to 1 as its arguments and produces as a result also a real number between 0 and 1.  Now, additionally let the function satisfy the following properties.
+
+	1. f(0, 0) = 0     and    f(1, 1) = 1
+	2. f(x, y) = f(y, x)
+	3. if x ? x’  and y ? y’  then  f(x, y) ? f(x’, y’)  
+	4. f(f(x, y), z) = f(x, f(y, z))
+	5. f(x, 1) = x
+
+Mathematicians sometimes use the term “t-norm” to describe any function that has that format and also satisfies those five properties.  It turns out that a t-norm exactly fits the axiomatic requirements for a way to define what we mean by fuzzy conjunction, so we can say that any t-norm is at least theoretically acceptable as a definition of “AND” in the context of fuzzy logic.  If you take a more theory-oriented course on fuzzy set and fuzzy logic, you can study all about this, but here let us just mention what concerns us most in this course.  
+	If you consider min(x, y), where of course x and y assume values from 0 to 1, carefully you will see that it fits all of the requirements stated above for a t-norm.  Now consider that just multiplying x?y in the usual arithmetic way also meets all the requirements of being a t-norm.  We refer to this as “algebraic product” and it is the second most common way of defining “AND” in the context of practical fuzzy logic applications.  In particular, it is what is normally used in ANFIS.
+	We could deal with disjunction in a very similar way, but it is not particularly important to what we are doing here.  We will leave this also for a more theory-oriented course.  
+
+Point #8: Though this course is not primarily about traditional mathematical optimization methods, we need to get into that somewhat.  Notice that in the JSM text all of Chapters 5 and 6 are devoted to topics related to traditional mathematical optimization techniques (including the connection between optimization and regression models), so clearly those authors also see this kind of discussion as necessary, at least in the sense of review what people may already know.  We don’t need to get quite as detailed in our discussion as they do in those chapters, but let’s emphasize here that even in terms of traditional mathematical optimization, there is almost always more than one technique we should know how to use.  You probably already know this, but it will become all the more obvious to you when you learn how the training algorithm is supposed to work in ANFIS.  
+	Assuming that most students in the class have previously studied at least some aspects of traditional linear regression models in previous courses, you may have already noticed that there are both some similarities and some differences between how optimization is performed in those courses and how it is performed in the context to the BP algorithm in how we applied it, for example, in the BPN.   In both cases, we started out by defining a similar looking error function.  Let us assume for the moment that we are talking about a BPN with only one output node, so that it will be easiest to compare this with the linear regression.  Also consider that we are talking about the overall error function, that which is defined across all the training data points.  In that case our error function could be expressed as    where ?r is defined as the error for the rth data point.  That is, ?r = Calculated output value for data point #r – Desired output value for data point #r.  (Since we are talking about a BPN with only one output node here, we won’t bother with specifying j since it will always be j = 1 anyway.)  Actually, this not only looks similar to the error function you used for linear regression, but it is actually virtually identical to it.  In learning linear regression, you may have used  instead of  to express this function, you may have used n instead of p to express the number of training data points you have, and you may have used i instead of r as an index through the data points.  Also, depending on whose textbook you used when learning linear regression, there may or may not have been the  in front of the sigma sign.  But in every other way, this is the same error function.  
+	A second similarity between the BP algorithm and what you may have learned about linear regression is that our goal in both cases, more or less, was to minimize this error function.  The reason for inserting the phrase “more or less” here is that in the case of the BP algorithm, we worried about the phenomenon of overtraining, and therefore stopped a little short of minimizing the error function completely, but even so we can still say that the main driving force in both the BP algorithm and linear regression is to drive the error function toward a low value.
+	A third similarity between the BP algorithm and linear regression is that in both cases we needed to calculate partial derivatives.  These are the partial derivatives of the error function with respect to each of the various parameters we are trying to identify in the model.  By “parameters” we typically meant the various weights (and biases) for the BPN in the case of the BP algorithm, and in linear regression we mean the coefficients (usually labeled a, b, etc.) to be used in the linear equation.
+	But if you think carefully about what you remember from the two approaches, there are also some major difference between the BP algorithm and linear regression.  First, the BPN gives us a somewhat more complex, and generally more flexible, type of model than a linear regression does.  
+	But a second major difference, one that is of particular interest to us now, is that the methods of using the partial derivatives toward the goal of minimizing the error function are based on entirely different optimization techniques.  First of all, remember that in the BP algorithm we were using an iterative technique.  We went through many (sometimes thousands) of iterations, which we called epochs, through all the training data as part of a process of gradually adjusting the parameters, in the hopes of making them a little better each time.  You probably don’t remember doing that in the case of linear regression.  In the typical approach to linear regression, you did have to go through all the data points, but only for one pass, and then BOOM, you minimized the error function in one fell swoop.  Also, remember that in the case of the BP algorithm, we typically started off with random initial weights.  In linear regression, you probably never even thought of initializing the parameters to some preliminary values.   
+	Why was the BP algorithm so iterative and yet the linear regression technique you probably learned not really iterative at all?  It is, of course, because they are based on two entirely different approaches to mathematical optimization.  
+      The BP algorithm is based on the optimization (specifically thinking in terms of minimization here) technique of gradient descent (what the JSM text often abbreviates as “GD” or what I specifically like to call “simple gradient descent”).  In GD, we collect the various partial derivatives together as a vector, called the gradient, consider the direction in which that vector is pointing, and then take a small step in the exact opposite direction.  By taking many such small steps, we hope eventually to come close to minimizing the function.     
+      In the optimization method you probably learned for linear regression, you did something quite different from this.  There, you set each partial derivative equal to zero, and then used basic linear algebra techniques to solve the resulting system of (linear) equations that resulted.  The technique is based on the concept you learned in calculus that having all partial derivatives equal to zero is a necessary (though not really sufficient) condition for finding a local (and here we hope global) minimum for the given function.  This is what the JSM text refers to as the least square error method, and often abbreviates as “LSE”.  LSE is a good enough name for it, I suppose, in the sense that the goal is to minimize an error function that involves the sum of squared errors.  We will follow their lead and use the name LSE in lecture, but (as I so often do) I would like to point out that this name is slight misnomer and a little deceptive in the sense that GD is actually based on the same error function as well and is also trying to minimize it.  
+      Let’s review this by considering a simple example.  Suppose that we want to develop a model so that in the future we can use the values of variables x and y to predict a value for variable z.  We can start out be assuming that there is some underlying relationship between the three variables that we can express in the form of a bivariate function z = f(x, y).  We don’t know, of course, exactly what f might look like, only that whatever the relationship is can be thought of as a function.  One way to think of our goal then is that we are trying to come up with a function zCalculated = g(x, y) where function g is a good approximator of function f.  By saying that we want g to be a good approximator of f, we are saying that we are trying to design g in such a way that zCalculated will turn out to be pretty close to z for some particular values of x and y.
+      Depending on the circumstances, it might be reasonable to assume that there is something fairly close to a linear relationship between the three variables.  That is, maybe f is not exactly a linear function, but we somehow know enough about how x, y, and z relate to each other in the real world to know that f is not a lot different from a linear function in terms of its behavior.  Under these circumstances, it will probably work out OK to say that g can be a linear function and still be a good approximator for f.  When we say that g is a linear (bivariate) function, this means that g(x, y) = ax + by + c, and that the only things we don’t yet know are what values we should use for the three parameters a, b, and c.  
+      In order to decide what values might be good to use for a, b, and c, we are going to collect several (let’s say, ten) data points based on empirical (real world) examples.  For each of these ten examples we’ll measure x, y, and z, where xi will indicate the x value in the ith example, and similarly for the y and z values.  Suppose these were the data we collected.
+      
+      
+
+Now the question is, how do we use these data to decide what a, b, and c should be?
+	The LSE method says to do this in the following way.  First define the error function   where  is error for the ith data point.  By that we mean it is the difference between the calculated value for z and the actual value for z in the  ith example.  Since the ith calculated value for z is whatever we will end up calculating for g(xi , yi) we can then say that .  Of course, the problem is that we don’t yet know what a, b, and c are, but the point is that whatever they are, this is what we mean by how errors are to be calculated.  Therefore, we can say that  and that our goal is to choose a, b, and c in such a way that E will be as low as possible.  (From this point on, whenever we use the summation sign, just assume that it means summation for i = 1 to 10.)    
+	But this is where it all gets a little confusing.  When we finish building this model a, b, and c will be constants, and x, y, and z we will think of as our variables.  But when we are in the process of building the model, we are thinking of this in almost the exact opposite way.  We now consider a, b, and c to be the variables, and we think of xi , yi  and zi for various values of i =1, 2, . . . , 10 to be the constants (based on the empirical data).  In that sense, we can think of our job as the minimization problem: Minimize E(a,b,c).   That is we are going to minimize the error function by choosing the best values to use for a, b, and c, which we are presently considering to be the variables.
+	The LSE method says we should solve this minimization problem by setting  equal to zero, setting  equal to zero, and setting  equal to zero, and then solving the resulting system of three equations.  We know from calculus that we should still be a little careful here in the sense that having all partials equal to zero is generally only a necessary, not a sufficient, condition for finding the minimum of a function.  But, we won’t worry too much about that here.  Further analysis would show that under these particular circumstances, it is also sufficient.   
+	You may already remember from previous courses where this leads us, but let’s review this briefly.  Since  the chain rule then tells us .   Then (being careful of manipulating summation signs only in appropriate ways) we can re-express this as the following.  
+
+	
+
+Thus, 
+	
+By a similar analysis we can conclude,
+	 . 
+And (keeping in mind that ) we can also find
+	.  And now we have a system of three equations to solve.
+      We can calculate all the summations required in the equations above from the data quite easily (particularly if we have spreadsheet software handy).	
+
+
+So the three equations can now be expressed as the following.
+
+	1407.38a + 2861.76b + 115.21c = 1419.34
+	2861.76a + 6276.83b + 248.97c = 2895.95
+	  115.21a +   248.97b +        10c =   117.47
+
+Then simple algebra is enough to tell us that the solution to this is a = 0.7994,     b = -0.2993, and c = 9.9881.  
+      Plugging in these values gives us g(x, y) = 0.7994x – 0.5993y + 9.9881 as the best we can do for a linear approximator for real world function f.  This g function at least fits these data as well as possible and we can hope it would work well as a predictor of z in general.  
+      Let us now consider that we could have developed a (particularly simple) neural network that would have been the exact equivalent of this linear model.  It would have only an input layer and an output layer.  The output layer would have only one node, and that one node would be a simple one.  We could think of it as using the LBF, but in place of the sigmoid activation function, we would just use the identity function so that a1 = s.  
+      
+To be absolutely clear, the calculations when we use the already trained network are simply as follows: a0[1] = x, a0[2] = y, a0[0] = 1, zcalc = a1 = s = .
+	To train this network we could use the appropriate form of the BP algorithm, based on simple GD, and go through many epochs of training.  Or if we wanted to be much more efficient, we could just do one pass through the training data, applying the LSE method, and arrive at the optimal w1 weights effectively in just one epoch.  We would still be using the three partial derivatives, , , and , but we’d be using them in a way very different from the way we use the partials for GD.  This would be exactly equivalent to the traditional linear regression problem we solved above, with w1[1] taking the role of a, w1[2] taking the role of b, and w1[0] taking the role of c.  
+	One question that might occur to you is why we don’t use LSE for all types of ANNs, including the typical BPN architecture.  Part of the reason is that in the usual BPN as in most other architectures, there is a nonlinear and rather complex relationship between the parameters (weights, or whatever) and the output, and this makes it considerably more difficult to apply the LSE method in practice.  In the very simple neural network we just discussed, we were taking advantage of the fact that there was a very straightforward, and in fact linear, relationship between the weights and the output.  A second reason we might not want to use to use the LSE method even where we could is that it ignores the whole issue of overtraining.  
+	
+Point #9: OK, we’re almost ready to talk about exactly how ANFIS works, but let’s first follow up Point #8 with one more point that will help us be ready to understand how training will work in ANFIS.  This is the concept of the hybrid training algorithm.  
+	To illustrate this in a format that is simpler than ANFIS, consider a neural network similar to the discussed under Point #8, except that now we will add a hidden layer.  Suppose the hidden layer contains two nodes, and each of these work just like they did in the usual BPN architecture.  That is the hidden nodes are based the LBF and the sigmoid activation function, though the single output node is still just based on the LBF and identity activation function.     
+	
+(Note that we are only labeling some of the weights on the diagram.  There are actually six hidden layer weights: 	w1[1,0], w1[1,1], w1[1,2], w1[2,0], w1[2,1], and w1[2,2].  There are three output layer weights: w2[0], w2[1], and w2[2].)  
+      We could just train this network by applying the BP algorithm in the usual way.  Indeed, it would be very difficult if we were to try to apply the LSE method for the w1 weights, since they have a nonlinear, rather complicated relationship to the output.  
+      But there is a sort of compromise approach we could take here, which is to say we would apply the GD method to find gradually better and better w1 weights, but we would do this in conjunction with using the LSE method to find the best w2 weights.  The basic concept of how this algorithm would work can be expressed by the following pseudo-code.
+      
+Start with random (or otherwise appropriately chosen) w1‘s
+Repeat
+      With the w1‘s temporarily fixed use LSE to find optimal w2‘s
+      With the w2‘s temporarily fixed go through one epoch of GD to improve 
+      				slightly the w1‘s
+    Until satisfactorily low error function value is attained.
+
+	Notice that we still may need to go through many epochs.  Also notice that we are applying LSE to the w2‘s on each epoch as well as applying GD to the w1‘s.  So the obvious question is why, since LSE is typically just a one pass method, do we need to reapply it on every epoch?  The reason is that LSE does find the optimal w2‘s in just one pass, but those w2‘s will be optimal only under the assumption that we are going to end up using the current w1‘s.  If the w1‘s change, then what values will be optimal for the w2‘s will also change.  So this is why we have to keep reapplying the LSE method on every step.  Even so, we can still hope that this hybrid algorithm will make our training process considerably quicker than would be the case if we just used the straight BP algorithm.  
+
+Point #10: OK, finally, we are in good shape to start talking about what ANFIS actually looks like.  How can we represent the TSK-style FIS as though it were a neural network?  It probably won’t be a surprise that it will turn out to be a fairly complex structure.  I make a slight modification to the way the JSM book and many other sources represent this, but the calculations end up just the same, and I think my way is slightly easier to understand.  
+	The diagram below represents the ANFIS network in the case of a two-input, one-output system, where there are three terms (S, M, and L) associated with the first input, but only two terms (S and L) associated with the second input.  This will result in a TSK model with six rules, which is why layers 2, 4, and 5 in this diagram each have six nodes.  
+	With the seven layers, as I represent it, this seems perhaps a bit intimidating, but it is really not so bad.  For one thing, only layers 1 and 5 (underlined in the diagram) involve parameters that must be determined by training.  The other layers are all “hard wired”.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+
+
+
+In the hopes of maintaining some modicum of simplicity in the diagram, I have not included the activations, but these will follow the conventions we’ve used so far in the course.  That is, we’ll use the letter a with a subscript to denote an activation where the subscript indicating the layer number.  In layers 0, 2, 4, and 5, we’ll use an argument in brackets to indicate which node.  It is slightly confusing, but we’ll use two arguments in the case of layer 1.  
+	OK, so here’s how the calculations go as relates to the specific situation shown in the diagram (2 inputs, 1 output, 3 terms for the first input, and 2 terms for the second).  Here we’re talking for now just about how calculations are made assuming the network has already been trained.
+
+	m  = 2 = number of inputs.
+	k[1] = 3 = number of linguistic terms used for input x1(S, M, L). 
+	k[2] = 2 = number of linguistic terms used for input x2 (S, L).
+	n =  = 3?2 = 6 = number of rules.
+	a0[i] = xi for i = 1, . . , m.
+	a1[i, l] =     for i = 1, . . , m,  l = 1, . . ., k[i].
+	
+In this case, we would calculate five a1 values: a1[1, 1], a1[1, 2], a1[1, 3], a1[2, 1], and a1[2, 2].  In order to do this, we assume that we have fifteen different parameters available to us based on training: ?[1, 1], ?[1, 1], ?[1, 1], ?[1, 2], 
+?[1, 2], ?[1, 2], ?[1, 3], ?[1, 3], ?[1, 3], ?[2, 1], ?[2, 1], ?[2, 1], ?[2, 2], ?[2, 2], and ?[2, 2].  
+	
+	a2[ j] = a1[1, l1] ? a1[2, l2]    where j = (l1 - 1)k[2] + l2   
+      for l1 = 1, . . ., k[1] and l2 = 1, . . ., k[2].
+
+This may seem confusing, but what it would mean in this case is simply that 
+
+	a2[1] = a1[1, 1] ? a1[2, 1]    
+	a2[2] = a1[1, 1] ? a1[2, 2]    
+	a2[3] = a1[1, 2] ? a1[2, 1]    
+	a2[4] = a1[1, 2] ? a1[2, 2]  
+	a2[5] = a1[1, 3] ? a1[2, 1]    
+	a2[6] = a1[1, 3] ? a1[2, 2].
+
+	a3 = .
+	a4[ j] =   for j = 1, . . ., n.
+	
+    	a5[ j] =  a4[ j] ? (c[ j, 0] + c[ j, 1] ?a0[1] + c[ j, 2] ?a0[2] )   for j = 1, . . ., n.
+
+This assumes that we have already determined all 18 c values needed from training.	
+	a6 = .
+
+	Basically, what is going on in each layer?  Layer 1 is calculating the membership grades for each of the linguistic terms relating to the inputs: S1, M1, L1, S2, and L2,.  Layer 2 is carrying out the fuzzy conjunction operation in the antecedent parts of each of the six rules.  Remember, here we are using algebraic product as the fuzzy conjunction operator, so this just becomes a matter of multiplying two of the activations coming out of layer 1.  Layers 3 and 4 taken together (JSM and other sources often combine these into just one layer) have the effect of normalizing the antecedent parts of the rules (before we even get to the point of applying the consequent parts).  In other words, if we add up all of the a4 activations the sum will be 1.   Layer 5 calculates the consequent parts of the rules (based on both the c coefficients and the input activations from layer 0) and weights these by multiplying by the corresponding a4 activation for each rule.  Layer 6 simply sums all the activations from layer 5, and since these in effect were pre-normalized based on layers 3 and 4, the layer 6 activation is the output.  
+	In the case of ANFIS, the network inputs and output can be in any range of real values.  It still may be useful in some circumstances to preprocess the inputs or to post-process the output in some way, but we generally assume there is no need for scaling the variables to make them fit within a specific range.  
+	As mentioned above, only two layers use parameters:
+
+Layer 1: An ??????and ? parameter for each node.  (Thus, here we need 5 ?‘s¸ 5 ?‘s¸ and 5 ?‘s.)
+Layer 5: Three c coefficients for each node.  (Thus, here we need 3x6 = 18 c’s.)
+
+So for this simple example we must tune 33 parameters.  We could use GD for all of these, but notice that all the c parameters have a direct linear influence on the output.  Therefore, the developers of the ANFIS approach tell us we should use the hybrid algorithm, tuning the ?‘s¸ ?‘s¸ and ?‘s by GD, but adjusting the c’s by LSE.  Since the LSE doesn’t require us to start with any initial values for the c’s, we don’t have to worry about that here.  We do need initial values for the ?‘s¸ ?‘s¸ and ?‘s, but rather than setting these randomly, we start with what we think might be reasonable values for these, which is why the discussion under Point 6 above (and similar discussions elsewhere) as to the intuitive meaning of these parameters is important to know.   Thus, the basic algorithm is as follows.  I don’t give the nitty-gritty details of how it works here, just the general outline of the approach.
+
+	Initialize all ?‘s¸ ?‘s¸ and ?‘s to appropriate values.
+	Repeat
+      Leaving the ?‘s¸ ?‘s¸ and ?‘s temporarily fixed, use LSE to tune the 
+      		c’s .   (One pass through the data.)
+      Leaving the c’s temporarily fixed, make one pass (epoch) through 
+      		the data to tune the ?‘s¸ ?‘s¸ and ?‘s.
+	    until a suitably low overall error is attained.
+
+	Jang et al, in the JSM textbook and elsewhere, claim that ANFIS tends to be a much more effective approximator than BPN or other similar ANN architectures.  They claim that it tends to be much quicker to train as well as having a much lower overall error in the end.  Much of the discussion in some parts of Chapter 12, especially pages 342 – 348 relate to this point.  It is easy to consider a few reasons why the training might go much faster.  First, the hybrid training will tend to be faster than using GD alone, even though we still must go through several epochs.  Second, we start with values for the ?‘s¸ ?‘s¸ and ?‘s that are already reasonably good, rather than just choosing them randomly.  As for why the overall error is lower in the end, that may not be quite as easy to explain on an intuitive level.  It may help a little to consider a graphical interpretation of the TSK-style model. 
+
+Numerical Example: Suppose we have a system with two inputs, x1 and x2, and one input, y, that we have modeled using a TSK-style FIS.  Assume the model structure is the following.  
+Model Structure: Tx1 = {S1, M1, L1}      Tx2 = {S2, L2} and the membership functions will take the shape of the generalized bell function.  
+Thus, the number of rules = ?Tx1???Tx2?= 3 ? 2 = 6.
+
+      Rule #1: If x1 is S1 and x2 is S2  then y = c10 + c11x1 + c12x2.
+      Rule #2: If x1 is S1 and x2 is L2  then y = c20 + c21x1 + c22x2.
+      Rule #3: If x1 is M1 and x2 is S2  then y = c30 + c31x1 + c32x2.
+      Rule #4: If x1 is M1 and x2 is L2  then y = c40 + c41x1 + c42x2.
+      Rule #5: If x1 is L1 and x2 is S2  then y = c50 + c51x1 + c52x2.
+      Rule #6: If x1 is L1 and x2 is L2  then y = c60 + c61x1 + c62x2.
+
+We’ll use algebraic product as the fuzzy conjunction operator.  
+      Since the number of inputs and the number of linguistic terms used is the same (i.e. m = 2, k[1] = 3, k[2] = 2, and thus n = 6) if we want to represent this TSK-style as a network, it would look exactly like the diagram on page 16 in these notes.  
+Parameter Identification: Assume that based on some means (probably training from data) the system parameters are already identified and they are as follows.
+
+
+
+
+	Now, if x1 = 15 and x2 = 33, what is y?
+	
+Obviously:   a0[1] = 15    and    a0[2] = 33.
+
+      a1[1, 1] =  = 0.9961.   
+We can say then that ?S1(15) = 0.9961, or looking at this another way, if we think of x1’ as the fuzzy linguistic form of the output (as we did after step #1 in the Mamdani-style) we can say ?x1’(S1) = 0.9961.  Similarly,
+        a1[1, 2] =  = 0.7033.   
+And by going through the same type of calculation, a1[1, 3] = 0.0799.  Thus, we could say that x1’ = 0.9961/ S1 + 0.7033/ M1 + 0.0799/L1.
+	Going through similar calculations for the second input we get, 
+a1[2, 1] = 0.3321 and a1[2, 2] = 0.9878.  Or thinking of it in another way, we could say that x2’ = 0.3321/ S2 + 0.9878/L2.
+
+	Moving on to layer 2, and using the algebraic product operator for conjunction we get the following.
+	a2[1] = a1[1, 1] ? a1[2, 1] = 0.9961(0.3321) = 0.3308.
+	a2[2] = a1[1, 1] ? a1[2, 2] = 0.9961(0.9878) = 0.9839.
+      a2[3] = a1[1, 2] ? a1[2, 1] = 0.7033(0.3321) = 0.2336.
+	a2[4] = a1[1, 2] ? a1[2, 2] = 0.7033(0.9878) = 0.6947.
+	a2[5] = a1[1, 3] ? a1[2, 1] = 0.0799(0.3321) = 0.0265.
+	a2[6] = a1[1, 3] ? a1[2, 2] = 0.0799(0.9878) = 0.0789.
+
+	Layers 3 and 4 normalize these results.
+	a3 =  = 0.3308 + 0.9839 + . . . + 0.0789 = 2.3484.
+	a4[1] =  = 0.1409.
+Similarly, a4[2] = 0.4190, a4[3] = 0.0995, a4[4] = 0.2958, a4[5] = 0.0113, and 
+a4[6] = 0.0336.  Notice that these six values sum to one. 
+
+	Now in layer 5, we actually apply the rules.  Let us now think of the c coefficients as being represented by the array so that we’ll write c[i, j ] to represent what we previously called cij.
+	a5[1] = a4[1](c[1,0] + c[1,1]?a0[1] + c[1,2] ?a0[2])
+	         = 0.1409(10.00 + 0.50?15 + 0.70?33) = 0.1409(40.60) =  5.72.
+	a5[2] = 0.4190(12.00 + 0.30?15 + 1.40?33) = 0.4190(62.70) = 26.27.
+	a5[3] = 0.0995(3.00 + 0.70?15 + 0.60?33) = 0.0995(33.30) =     3.31.
+	a5[4] = 0.2958(13.00 - 0.10?15 + 1.60?33) = 0.2958(64.30) =  19.02.
+	a5[5] = 0.0113(-5.00 + 1.00?15 + 0.50?33) = 0.0113(26.50) =    0.30.
+	a5[6] = 0.0336(15.00 - 0.70?15 + 2.00?33) = 0.0336(70.50) =    2.37.
+
+
+	Then in layer 6, we just sum the rules to give us the final output.
+	y = a6 =  = 5.72 + 26.27 + . . . + 2.37 = 56.99 ? 57.
+Thus, for this TSK-style FIS, given the parameters specified above, when the two inputs are x1 =15 and x2 = 33, the output is y = 57.  
+
+HW #5: With the same TSK-style FIS, and the same parameters as specified above, what would the output y be given x1 = 33 and x2 = 16?  Justify your answer by showing the details of the calculations.
+
+Questions for discussion: 
+> Are there any weaknesses in ANFIS, and do you agree it has the strengths its proponents says it does?  
+> Can genetic methods be added to ANFIS (thus, making it a three-way hybrid: fuzzy, neural, and genetic) and would there be some advantages in doing so.
+
+
+
+
+2
+
+

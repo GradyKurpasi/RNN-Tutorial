@@ -6,7 +6,6 @@ import numpy as np
 
 # data I/O
 data = open('ANFIS 2019.txt', 'r').read() # should be simple plain text file
-#data = "hello"
 chars = list(set(data))
 data_size, vocab_size = len(data), len(chars)
 print ('data has %d characters, %d unique.' % (data_size, vocab_size))
@@ -14,10 +13,8 @@ char_to_ix = { ch:i for i,ch in enumerate(chars) }
 ix_to_char = { i:ch for i,ch in enumerate(chars) }
 
 # hyperparameters
-#hidden_size = 100 # size of hidden layer of neurons
-#seq_length = 25 # number of steps to unroll the RNN for
-hidden_size = 3 # size of hidden layer of neurons
-seq_length = 4 # number of steps to unroll the RNN for
+hidden_size = 100 # size of hidden layer of neurons
+seq_length = 25 # number of steps to unroll the RNN for
 learning_rate = 1e-1
 
 # model parameters
@@ -26,20 +23,6 @@ Whh = np.random.randn(hidden_size, hidden_size)*0.01 # hidden to hidden
 Why = np.random.randn(vocab_size, hidden_size)*0.01 # hidden to output
 bh = np.zeros((hidden_size, 1)) # hidden bias
 by = np.zeros((vocab_size, 1)) # output bias
-
-Whh = np.array([[.1, .5, .1], 
-                [.5, .9, .3], 
-                [.3, .2, .1]])
-Wxh = np.array([[.6, .8, .4, .8],
-                [.2, .2, .8, .7],
-                [.9, .8, .1, .2]])
-Why = np.array([[.9, .8, .3],
-                [.2, .3, .4],
-                [.6, .9, .1],
-                [.5, 0, .3]])
-
-
-
 
 def lossFun(inputs, targets, hprev):
   """
@@ -77,9 +60,6 @@ def lossFun(inputs, targets, hprev):
     np.clip(dparam, -5, 5, out=dparam) # clip to mitigate exploding gradients
   return loss, dWxh, dWhh, dWhy, dbh, dby, hs[len(inputs)-1]
 
-
-
-
 def sample(h, seed_ix, n):
   """ 
   sample a sequence of integers from the model 
@@ -89,11 +69,6 @@ def sample(h, seed_ix, n):
   x[seed_ix] = 1
   ixes = []
   for t in range(n):
-    # print(x)
-    # print(Wxh)
-    # print(h)
-    # print(Whh)
-    # print(np.dot(Whh, h))
     h = np.tanh(np.dot(Wxh, x) + np.dot(Whh, h) + bh)
     y = np.dot(Why, h) + by
     p = np.exp(y) / np.sum(np.exp(y))
@@ -102,11 +77,6 @@ def sample(h, seed_ix, n):
     x[ix] = 1
     ixes.append(ix)
   return ixes
-
-
-
-
-
 
 n, p = 0, 0
 mWxh, mWhh, mWhy = np.zeros_like(Wxh), np.zeros_like(Whh), np.zeros_like(Why)
@@ -140,3 +110,9 @@ while True:
 
   p += seq_length # move data pointer
   n += 1 # iteration counter 
+  
+  if smooth_loss < 1: break
+
+
+
+print('done')
